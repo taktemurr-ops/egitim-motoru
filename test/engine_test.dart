@@ -455,8 +455,8 @@ void main() {
     expect(addSuffix('araba', Suffix.accusative), 'arabayı');
     expect(addSuffix('araba', Suffix.genitive), 'arabanın');
     expect(addSuffix('araba', Suffix.possessive1), 'arabam');
-    expect(addSuffix('araba', Suffix.with), 'arabayla');
-    expect(addSuffix('göz', Suffix.with), 'gözle');
+    expect(addSuffix('araba', Suffix.instrumental), 'arabayla');
+    expect(addSuffix('göz', Suffix.instrumental), 'gözle');
     expect(addSuffix('ev', Suffix.plural), 'evler');
     expect(addSuffix('İstanbul', Suffix.locative), "İstanbul'da");
     expect(addSuffix('Mehmet', Suffix.accusative), "Mehmet'i");

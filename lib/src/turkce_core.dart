@@ -78,7 +78,7 @@ List<String> syllables(String word) {
 }
 
 /// Ek türleri.
-enum Suffix { plural, accusative, dative, locative, ablative, genitive, possessive1, with }
+enum Suffix { plural, accusative, dative, locative, ablative, genitive, possessive1, instrumental }
 
 /// Son hecesi kalın olduğu hâlde ince ek alan alıntı sözcükler.
 const Set<String> kFrontSuffixWords = {
@@ -193,7 +193,7 @@ String addSuffix(String word, Suffix s) {
       return vEnd ? '$w${sep}n${n}n' : vowelSuffix('${n}n');
     case Suffix.possessive1:
       return vEnd ? '$w${sep}m' : vowelSuffix('${n}m');
-    case Suffix.with:
+    case Suffix.instrumental:
       return vEnd ? '$w${sep}yl$a' : '$w${sep}l$a';
   }
 }

@@ -930,7 +930,7 @@ class _TurkishGrammarState extends State<TurkishGrammarTool> {
     final rows = <(String, Suffix)>[
       ('sf_plural', Suffix.plural), ('sf_accusative', Suffix.accusative), ('sf_dative', Suffix.dative),
       ('sf_locative', Suffix.locative), ('sf_ablative', Suffix.ablative), ('sf_genitive', Suffix.genitive),
-      ('sf_possessive', Suffix.possessive1), ('sf_with', Suffix.with),
+      ('sf_possessive', Suffix.possessive1), ('sf_with', Suffix.instrumental),
     ];
     final syl = syllables(w);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

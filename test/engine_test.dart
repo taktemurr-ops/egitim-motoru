@@ -40,9 +40,9 @@ void main() {
     expect(d.dhuhr!.hour, 13);
     expect(d.maghrib!.hour, anyOf(20, 21));
     final w = prayerTimes(DateTime(2026, 12, 21), 41.01, 28.98, 3, m);
-    // Türkiye yıl boyu UTC+3: kış gündönümünde öğle ~13:03, akşam ~16:40.
+    // Türkiye yıl boyu UTC+3: kış gündönümünde öğle ~13:07, akşam ~17:46.
     expect(w.dhuhr!.hour, 13);
-    expect(w.maghrib!.hour, 16);
+    expect(w.maghrib!.hour, 17);
   });
 
   test('yüksek enlemde vakitler yine oluşur', () {

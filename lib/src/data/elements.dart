@@ -3,6 +3,8 @@
 /// numarası köşeli parantezle). Kamu bilgisi.
 library;
 
+import 'element_names.dart';
+
 const String kElementData = '''
 H|Hydrogen|Hidrojen|1.008
 He|Helium|Helyum|4.0026
@@ -136,6 +138,6 @@ final List<ChemElement> kElements = [
   for (final (i, line) in kElementData.trim().split('\n').indexed)
     () {
       final p = line.split('|');
-      return ChemElement(i + 1, p[0], [p[2], p[1]], p[3]);
+      return ChemElement(i + 1, p[0], kElementNames[i], p[3]);
     }(),
 ];

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:egitim_motoru/egitim_motoru.dart';
@@ -174,6 +175,70 @@ void main() {
     expect(hits.first.$2, contains('door'));
     expect(searchWords(kWords, 'door').first.$1, 'kapı');
     expect(searchWords(kWords, '  '), isEmpty);
+  });
+
+  test('bilim ve rehber içerikleri 33 dilde', () {
+    for (final e in kElements) {
+      expect(e.name.length, 33, reason: e.symbol);
+      expect(e.name.every((n) => n.trim().isNotEmpty), isTrue, reason: e.symbol);
+    }
+    expect(kElements[25].name[0], 'Demir');
+    expect(kElements[25].name[2], 'Eisen');
+    for (final f in kFormulas) {
+      expect(f.title.length, 33, reason: f.title[1]);
+      for (final v in f.vars) {
+        expect(v.name.length, 33, reason: '${f.title[1]} ${v.sym}');
+      }
+      expect(f.result.name.length, 33, reason: f.title[1]);
+    }
+    for (final g in kFirstAid) {
+      expect(g.title.length, 33, reason: g.title[1]);
+      for (final s in g.steps) {
+        expect(s.length, 33, reason: s[1]);
+      }
+    }
+    for (final k in kKnots) {
+      expect(k.name.length, 33, reason: k.name[1]);
+      expect(k.use.length, 33, reason: k.name[1]);
+      for (final s in k.steps) {
+        expect(s.length, 33, reason: s[1]);
+      }
+    }
+    for (final row in kCareSymbols) {
+      for (final c in row) {
+        expect(c.meaning.length, 33, reason: c.meaning[1]);
+      }
+    }
+    for (final m in kMolecules) {
+      expect(m.name.length, 33, reason: m.formula);
+    }
+    for (final c in kCrops) {
+      expect(c.name.length, 33, reason: c.id);
+    }
+    for (final c in kCountries) {
+      expect(c.name.length, 33, reason: c.name[1]);
+    }
+    expect(kCountries.firstWhere((c) => c.name[1] == 'Germany').name[2], 'Deutschland');
+  });
+
+  test('büyük sözlük ve seviyeli kelime listesi', () {
+    expect(parseDictTsv('# yorum\nev, konut\thouse\nbozuk satır\n'), [('ev, konut', 'house')]);
+    expect(parseVocabTsv('A1\tev\thouse\nB2\tdeneme\n'), [('A1', 'ev', 'house')]);
+    // Varlık yoksa çekirdek listeye düşer.
+    final fb = buildVocabDecks(const [], 'Türkçe → English', true);
+    expect(fb.decks, ['Türkçe → English']);
+    expect(fb.cards.length, kWords.length);
+    final dict = parseDictTsv(File('assets/dict/tr_en.tsv').readAsStringSync());
+    expect(dict.length, greaterThan(10000));
+    expect(searchWords([...kWords, ...dict], 'house').first.$1, contains('ev'));
+    final vocab = parseVocabTsv(File('assets/vocab/tr_en_levels.tsv').readAsStringSync());
+    expect(vocab.length, greaterThanOrEqualTo(3000));
+    expect(vocab.map((v) => v.$1).toSet(), kVocabLevels.toSet());
+    final built = buildVocabDecks(vocab, 'Türkçe → English', true);
+    expect(built.decks.length, 5);
+    expect(built.cards.length, vocab.length);
+    expect(built.cards.first['front'], vocab.first.$3);
+    expect(File('assets/dict/LICENSE-GPL2.txt').existsSync(), isTrue);
   });
 
   test('seyahat ifadeleri 33 dilde', () {

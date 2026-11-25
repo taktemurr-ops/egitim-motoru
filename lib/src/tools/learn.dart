@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:studio_core/apps/apps.dart';
 
 import '../common.dart';
+import '../data/dict_assets.dart';
 import '../data/phrases.dart';
 import '../data/words.dart';
 import '../learn_core.dart';
@@ -17,6 +18,28 @@ import '../learn_core.dart';
 // ------------------------------------------------------------ kartlar
 
 const int kNewPerDay = 20;
+
+/// Seviyeli hazır desteler (A1…C1). Liste boşsa çekirdek ~470 sözcükle tek deste.
+({List<String> decks, List<Map<String, Object?>> cards}) buildVocabDecks(
+    List<(String, String, String)> vocab, String base, bool learnEn) {
+  if (vocab.isEmpty) {
+    return (
+      decks: [base],
+      cards: [
+        for (final (i, w) in kWords.indexed)
+          {'id': 'w$i', 'deck': base, 'front': learnEn ? w.$2 : w.$1, 'back': learnEn ? w.$1 : w.$2},
+      ],
+    );
+  }
+  final decks = <String>[];
+  final cards = <Map<String, Object?>>[];
+  for (final (i, v) in vocab.indexed) {
+    final deck = '$base · ${v.$1}';
+    if (!decks.contains(deck)) decks.add(deck);
+    cards.add({'id': 'v$i', 'deck': deck, 'front': learnEn ? v.$3 : v.$2, 'back': learnEn ? v.$2 : v.$3});
+  }
+  return (decks: decks, cards: cards);
+}
 
 class FlashcardTool extends StatefulWidget {
   final ToolContext t;
@@ -56,17 +79,10 @@ class _FlashcardToolState extends State<FlashcardTool> {
     if (widget.builtinWords && cards.isEmpty) {
       // Türkçe konuşana İngilizce, diğerlerine Türkçe öğretir.
       final learnEn = t.lang == 'tr';
-      final deck = learnEn ? 'Türkçe → English' : 'Turkish → ${kLangNames[math.max<int>(0, kLangCodes.indexOf(t.lang))]}';
-      decks = [deck];
-      cards = [
-        for (final (i, w) in kWords.indexed)
-          {
-            'id': 'w$i',
-            'deck': deck,
-            'front': learnEn ? w.$2 : w.$1,
-            'back': learnEn ? w.$1 : w.$2,
-          },
-      ];
+      final base = learnEn ? 'Türkçe → English' : 'Turkish → ${kLangNames[math.max<int>(0, kLangCodes.indexOf(t.lang))]}';
+      final built = buildVocabDecks(await loadVocabulary(), base, learnEn);
+      decks = built.decks;
+      cards = built.cards;
       await t.store.writeList('cards', cards);
       await t.store.writeStrings('decks', decks);
     }
@@ -324,7 +340,7 @@ List<(String, String)> searchWords(List<(String, String)> words, String q) {
   if (s.isEmpty) return const [];
   int rank((String, String) w) {
     final a = w.$1.toLowerCase(), b = w.$2.toLowerCase();
-    if (a == s || b.split(',').map((e) => e.trim()).contains(s)) return 0;
+    if (a == s || a.split(',').map((e) => e.trim()).contains(s) || b.split(',').map((e) => e.trim()).contains(s)) return 0;
     if (a.startsWith(s) || b.startsWith(s)) return 1;
     if (a.contains(s) || b.contains(s)) return 2;
     return 9;
@@ -345,12 +361,16 @@ class DictionaryTool extends StatefulWidget {
 class _DictionaryToolState extends State<DictionaryTool> {
   final _q = TextEditingController();
   List<(String, String)> _mine = [];
+  List<(String, String)> _big = const [];
 
   ToolContext get t => widget.t;
 
   @override
   void initState() {
     super.initState();
+    loadDictionary().then((d) {
+      if (mounted) setState(() => _big = d);
+    });
     t.store.readList('mine').then((l) {
       if (mounted) setState(() => _mine = [for (final m in l) ('${m['tr']}', '${m['en']}')]);
     });
@@ -388,7 +408,7 @@ class _DictionaryToolState extends State<DictionaryTool> {
 
   @override
   Widget build(BuildContext context) {
-    final all = [..._mine, ...kWords];
+    final all = [..._mine, ...kWords, ..._big];
     final hits = searchWords(all, _q.text);
     return ToolList(children: [
       Padding(

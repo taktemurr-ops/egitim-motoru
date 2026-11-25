@@ -3,6 +3,8 @@
 /// Sınırlar ve tartışmalı bölgeler hakkında görüş bildirmez.
 library;
 
+import 'country_names.dart';
+
 const String kCountryData = '''
 Afghanistan|Afganistan|Kabul|AS|34.53|69.17
 Albania|Arnavutluk|Tirana|EU|41.33|19.82
@@ -213,6 +215,6 @@ final List<Country> kCountries = [
   for (final line in kCountryData.trim().split('\n'))
     () {
       final p = line.split('|');
-      return Country([p[1], p[0]], p[2], p[3], double.parse(p[4]), double.parse(p[5]));
+      return Country(kCountryNames[p[0]] ?? [p[1], p[0]], p[2], p[3], double.parse(p[4]), double.parse(p[5]));
     }(),
 ];

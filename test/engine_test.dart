@@ -40,7 +40,8 @@ void main() {
     expect(d.dhuhr!.hour, 13);
     expect(d.maghrib!.hour, anyOf(20, 21));
     final w = prayerTimes(DateTime(2026, 12, 21), 41.01, 28.98, 3, m);
-    expect(w.dhuhr!.hour, 12);
+    // Türkiye yıl boyu UTC+3: kış gündönümünde öğle ~13:03, akşam ~16:40.
+    expect(w.dhuhr!.hour, 13);
     expect(w.maghrib!.hour, 16);
   });
 
@@ -323,7 +324,9 @@ void main() {
 
   test('saat dilimi örtüşmesi ve yön', () {
     expect(overlapHours([3, 3]), [9, 10, 11, 12, 13, 14, 15, 16, 17]);
-    expect(overlapHours([3, -5]), isEmpty);
+    // 8 saat fark: yalnız ana saatle 17:00 (karşı taraf 09:00) ortak mesai.
+    expect(overlapHours([3, -5]), [17]);
+    expect(overlapHours([3, -9]), isEmpty);
     expect(bearing(0, 0, 10, 0), closeTo(0, 0.01));
     expect(bearing(0, 0, 0, 10), closeTo(90, 0.01));
   });

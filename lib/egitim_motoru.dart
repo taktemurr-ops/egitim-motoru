@@ -1,4 +1,4 @@
-/// Eğitim ve Yaşam motoru: 45 uygulamanın gerçek uygulamaları, 33 dilde
+/// Eğitim ve Yaşam motoru: 49 uygulamanın gerçek uygulamaları, 33 dilde
 /// metinleri ve merkez görünümü. İnce depolar (uyg-*) buradan tek bir
 /// uygulama alır.
 library;
@@ -25,3 +25,9 @@ export 'src/data/sky.dart' show kStars, kConstellations;
 export 'src/data/molecules.dart' show kMolecules, bondsOf;
 export 'src/data/formulas.dart' show kFormulas;
 export 'src/data/guides.dart' show kFirstAid, kKnots, kCareSymbols;
+export 'src/data/core_words.dart';
+export 'src/data/timeline.dart';
+export 'src/data/ehliyet.dart';
+export 'src/data/turkce.dart';
+export 'src/turkce_core.dart';
+export 'src/tools/lang.dart' show vocabOf, vocabQuestion, kVocabCats, yearOptions, eraOf, kEras, buildExam, examScore, kPassScore;

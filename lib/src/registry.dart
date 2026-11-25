@@ -1,4 +1,4 @@
-/// Üretilmiş dosya (proto/apps/egitim/mkengine.py). Eğitim ve Yaşam'ın 45 uygulaması.
+/// Üretilmiş dosya (proto/apps/egitim/mkengine.py). Eğitim ve Yaşam'ın 49 uygulaması.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'tools/food.dart';
 import 'tools/garden.dart';
 import 'tools/guide.dart';
 import 'tools/home.dart';
+import 'tools/lang.dart';
 import 'tools/learn.dart';
 import 'tools/records.dart';
 import 'tools/science.dart';
@@ -479,6 +480,46 @@ final List<AppTool> egitimTools = [
     category: 'safety',
     keywords: const ['afad', 'earthquake', 'kit'],
     builder: (context, t) => RecordsTool(t, quakeSpec, header: quakeHeader),
+  ),
+  AppTool(
+    id: 'uyg-cok-dilli-temel-kelimeler',
+    title: kEgitimTitle['uyg-cok-dilli-temel-kelimeler']!,
+    tagline: kEgitimTag['uyg-cok-dilli-temel-kelimeler']!,
+    icon: Icons.translate_rounded,
+    color: const Color(0xFF26C6DA),
+    category: 'learn',
+    keywords: const ['vocabulary', 'words', 'kelime', 'language', 'dil'],
+    builder: (context, t) => CoreVocabTool(t),
+  ),
+  AppTool(
+    id: 'uyg-tarih-zaman-cizelgesi',
+    title: kEgitimTitle['uyg-tarih-zaman-cizelgesi']!,
+    tagline: kEgitimTag['uyg-tarih-zaman-cizelgesi']!,
+    icon: Icons.timeline_rounded,
+    color: const Color(0xFFFFB74D),
+    category: 'learn',
+    keywords: const ['history', 'timeline', 'tarih'],
+    builder: (context, t) => TimelineTool(t),
+  ),
+  AppTool(
+    id: 'uyg-ehliyet-sinavi-pratigi',
+    title: kEgitimTitle['uyg-ehliyet-sinavi-pratigi']!,
+    tagline: kEgitimTag['uyg-ehliyet-sinavi-pratigi']!,
+    icon: Icons.directions_car_rounded,
+    color: const Color(0xFF42A5F5),
+    category: 'learn',
+    keywords: const ['ehliyet', 'sürücü', 'driving', 'license', 'trafik', 'mtsk'],
+    builder: (context, t) => DrivingExamTool(t),
+  ),
+  AppTool(
+    id: 'uyg-turkce-dilbilgisi',
+    title: kEgitimTitle['uyg-turkce-dilbilgisi']!,
+    tagline: kEgitimTag['uyg-turkce-dilbilgisi']!,
+    icon: Icons.spellcheck_rounded,
+    color: const Color(0xFFEF5350),
+    category: 'learn',
+    keywords: const ['türkçe', 'turkish', 'yazım', 'imla', 'tdk', 'dilbilgisi'],
+    builder: (context, t) => TurkishGrammarTool(t),
   ),
 ];
 

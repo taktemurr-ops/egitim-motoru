@@ -10,9 +10,9 @@ import 'package:studio_core/apps/apps.dart';
 import 'package:studio_core/core/save_store.dart';
 
 void main() {
-  test('45 uygulama, 33 dilde ad ve açıklama, geçerli kategori', () {
-    expect(egitimTools.length, 45);
-    expect(egitimTools.map((t) => t.id).toSet().length, 45);
+  test('49 uygulama, 33 dilde ad ve açıklama, geçerli kategori', () {
+    expect(egitimTools.length, 49);
+    expect(egitimTools.map((t) => t.id).toSet().length, 49);
     for (final t in egitimTools) {
       expect(t.title.length, 33, reason: t.id);
       expect(t.tagline.length, 33, reason: t.id);
@@ -363,6 +363,113 @@ void main() {
     expect(kStars.length, greaterThan(50));
     expect(kConstellations, isNotEmpty);
     expect(kCities.length, greaterThan(150));
+  });
+
+  test('33 dilde temel kelimeler: dolu, kategorili, test soruları', () {
+    expect(kCoreWords.length, greaterThanOrEqualTo(200));
+    for (final w in kCoreWords) {
+      expect(w.w.length, 33, reason: w.w[1]);
+      expect(w.w.every((x) => x.trim().isNotEmpty), isTrue, reason: w.w[1]);
+      expect(kVocabCats.containsKey(w.cat), isTrue, reason: w.cat);
+    }
+    for (final c in kVocabCats.keys) {
+      expect(vocabOf(c).length, greaterThanOrEqualTo(4), reason: c);
+    }
+    final r = math.Random(5);
+    for (var i = 0; i < 50; i++) {
+      final q = vocabQuestion(12, i % 12, r);
+      expect(q.options.length, 4);
+      expect(q.options.toSet().length, 4);
+      expect(q.options.contains(q.answer), isTrue);
+    }
+    // Türkçe "içinde" doğru küçültülmüş (İ → i).
+    expect(kCoreWords.any((w) => w.w[0] == 'içinde'), isTrue);
+  });
+
+  test('zaman çizelgesi: sıralı, 33 dil, dönemler, yıl seçenekleri', () {
+    expect(kTimeline.length, greaterThanOrEqualTo(110));
+    for (var i = 1; i < kTimeline.length; i++) {
+      expect(kTimeline[i].year, greaterThanOrEqualTo(kTimeline[i - 1].year));
+    }
+    for (final e in kTimeline) {
+      expect(e.text.length, 33);
+      expect(e.kind, inInclusiveRange(0, 5));
+      expect(eraOf(e.year), greaterThanOrEqualTo(0));
+    }
+    expect(kTimeline.first.year, lessThan(0));
+    final r = math.Random(2);
+    for (final e in kTimeline) {
+      final o = yearOptions(e.year, r);
+      expect(o.length, 4, reason: '${e.year}');
+      expect(o.toSet().length, 4);
+      expect(o.contains(e.year), isTrue);
+      expect(o.contains(0), isFalse);
+    }
+  });
+
+  test('ehliyet: özgün sorular, deneme sınavı dağılımı, puan', () {
+    expect(kExamQuestions.length, greaterThanOrEqualTo(120));
+    for (final q in kExamQuestions) {
+      expect(q.options.length, 4, reason: q.q);
+      expect(q.options.toSet().length, 4, reason: q.q);
+      expect(q.answer, inInclusiveRange(0, 3));
+      expect(q.why.isNotEmpty, isTrue);
+      expect(q.cat, inInclusiveRange(0, 3));
+    }
+    for (var c = 0; c < 4; c++) {
+      expect(kExamQuestions.where((q) => q.cat == c).length, greaterThanOrEqualTo(kExamMix[c]));
+    }
+    final exam = buildExam(math.Random(1));
+    expect(exam.length, 50);
+    expect(exam.toSet().length, 50);
+    for (var c = 0; c < 4; c++) {
+      expect(exam.where((i) => kExamQuestions[i].cat == c).length, kExamMix[c]);
+    }
+    expect(examScore(35, 50), 70);
+    expect(examScore(35, 50) >= kPassScore, isTrue);
+    expect(examScore(34, 50) >= kPassScore, isFalse);
+    expect(kEhliyetReviewed, matches(RegExp(r'^\d{4}-\d{2}$')));
+  });
+
+  test('Türkçe: ünlü uyumu, hece, ekler, yazım', () {
+    expect(syllables('Türkçe'), ['Türk', 'çe']);
+    expect(syllables('kitap'), ['ki', 'tap']);
+    expect(syllables('saat'), ['sa', 'at']);
+    expect(syllables('kardeş'), ['kar', 'deş']);
+    expect(syllables('okul'), ['o', 'kul']);
+    expect(syllables('tren'), ['tren']);
+    expect(bigHarmony('araba'), isTrue);
+    expect(bigHarmony('kitap'), isFalse);
+    expect(smallHarmony('çocuk'), isTrue);
+    expect(smallHarmony('tavuk'), isFalse);
+    expect(addSuffix('kitap', Suffix.accusative), 'kitabı');
+    expect(addSuffix('kitap', Suffix.locative), 'kitapta');
+    expect(addSuffix('kitap', Suffix.ablative), 'kitaptan');
+    expect(addSuffix('ağaç', Suffix.dative), 'ağaca');
+    expect(addSuffix('renk', Suffix.accusative), 'rengi');
+    expect(addSuffix('ekmek', Suffix.accusative), 'ekmeği');
+    expect(addSuffix('top', Suffix.accusative), 'topu');
+    expect(addSuffix('saat', Suffix.plural), 'saatler');
+    expect(addSuffix('saat', Suffix.accusative), 'saati');
+    expect(addSuffix('ağız', Suffix.accusative), 'ağzı');
+    expect(addSuffix('araba', Suffix.accusative), 'arabayı');
+    expect(addSuffix('araba', Suffix.genitive), 'arabanın');
+    expect(addSuffix('araba', Suffix.possessive1), 'arabam');
+    expect(addSuffix('araba', Suffix.with), 'arabayla');
+    expect(addSuffix('göz', Suffix.with), 'gözle');
+    expect(addSuffix('ev', Suffix.plural), 'evler');
+    expect(addSuffix('İstanbul', Suffix.locative), "İstanbul'da");
+    expect(addSuffix('Mehmet', Suffix.accusative), "Mehmet'i");
+    expect(addSuffix('okul', Suffix.genitive), 'okulun');
+    expect(addSuffix('göl', Suffix.accusative), 'gölü');
+    final issues = spellIssues('Herkez geldi ama hiç bir şey yanlız kalmadı.');
+    expect(issues.map((i) => i.$2).toList(), ['herkes', 'hiçbir', 'yalnız']);
+    expect(spellIssues('Herkes geldi.'), isEmpty);
+    final pairs = spellingPairs();
+    expect(pairs.length, greaterThan(50));
+    expect(pairs.every((p) => p.$1 != p.$2), isTrue);
+    expect(kSentencePairs.every((p) => p.$1 != p.$2 && p.$3.isNotEmpty), isTrue);
+    expect(kGrammarTopics.length, greaterThanOrEqualTo(15));
   });
 
   // Sensör, konum ya da kamera gerektirmeyen ekranlar test ortamında açılır.

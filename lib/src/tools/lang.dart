@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:studio_core/app/studio_ui.dart';
 import 'package:studio_core/apps/apps.dart';
 
 import '../common.dart';
@@ -776,9 +777,12 @@ class _ExamPageState extends State<_ExamPage> {
         if (!didPop) Navigator.pop(context, _answers);
       },
       child: Scaffold(
+        backgroundColor: StudioLook.of(context).base,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
           leading: IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context, _answers)),
-          title: Text(_finished ? L(t, 'results') : Lf(t, 'question_n', {'n': _i + 1, 't': n})),
+          title: StudioTitle(_finished ? L(t, 'results') : Lf(t, 'question_n', {'n': _i + 1, 't': n})),
           actions: [
             if (widget.exam && !_finished)
               Center(
@@ -790,7 +794,7 @@ class _ExamPageState extends State<_ExamPage> {
               ),
           ],
         ),
-        body: _finished ? _results() : _running(n),
+        body: StudioBackdrop(child: SafeArea(child: _finished ? _results() : _running(n))),
       ),
     );
   }

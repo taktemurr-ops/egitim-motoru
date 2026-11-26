@@ -9,6 +9,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:studio_core/app/studio_ui.dart';
 import 'package:studio_core/apps/apps.dart';
 
 import '../common.dart';
@@ -416,11 +417,14 @@ class _RecipeEditorState extends State<_RecipeEditor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: StudioLook.of(context).base,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.initial == null ? L(t, 'add_recipe') : L(t, 'edit')),
+        backgroundColor: Colors.transparent,
+        title: StudioTitle(widget.initial == null ? L(t, 'add_recipe') : L(t, 'edit'), icon: Icons.restaurant_menu_rounded),
         actions: [IconButton(onPressed: _done, icon: const Icon(Icons.check_rounded))],
       ),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: StudioBackdrop(child: SafeArea(child: ListView(padding: const EdgeInsets.all(16), children: [
         AppTextField(controller: _title, label: L(t, 'recipe_name')),
         AppNumberField(controller: _serv, label: L(t, 'servings'), decimal: false),
         AppTextField(controller: _ing, label: L(t, 'ingredients_hint'), maxLines: 8),
@@ -428,7 +432,7 @@ class _RecipeEditorState extends State<_RecipeEditor> {
         AppTextField(controller: _tags, label: L(t, 'tags')),
         if (_error) Text(L(t, 'name_required'), style: const TextStyle(color: Colors.redAccent)),
         AppButton(label: L(t, 'save'), icon: Icons.check_rounded, onPressed: _done),
-      ]),
+      ]))),
     );
   }
 }

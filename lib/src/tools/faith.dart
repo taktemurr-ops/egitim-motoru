@@ -812,10 +812,14 @@ class _HijriToolState extends State<HijriTool> {
                       borderRadius: BorderRadius.circular(10),
                       color: isToday ? s.accent.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.04),
                     ),
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('$d', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-                      Text('${g.day}/${g.month}', style: const TextStyle(color: Colors.white54, fontSize: 10)),
-                    ]),
+                    // Dar ekranda ve büyük yazıda hücreye sığsın diye küçülür.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Text('$d', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                        Text('${g.day}/${g.month}', style: const TextStyle(color: Colors.white54, fontSize: 10)),
+                      ]),
+                    ),
                   );
                 }(),
             ],

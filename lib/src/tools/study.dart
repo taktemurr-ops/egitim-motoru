@@ -367,10 +367,14 @@ class _PeriodicTableToolState extends State<PeriodicTableTool> {
                           borderRadius: BorderRadius.circular(5),
                           border: x.z == _sel ? Border.all(color: Colors.white, width: 2) : null,
                         ),
-                        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text('${x.z}', style: const TextStyle(fontSize: 8, color: Colors.black87)),
-                          Text(x.symbol, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black)),
-                        ]),
+                        // Büyük yazıda hücreye sığsın diye küçülür.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(mainAxisSize: MainAxisSize.min, children: [
+                            Text('${x.z}', style: const TextStyle(fontSize: 8, color: Colors.black87)),
+                            Text(x.symbol, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black)),
+                          ]),
+                        ),
                       ),
                     ),
                   );

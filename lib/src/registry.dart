@@ -1,10 +1,13 @@
-/// Üretilmiş dosya (proto/apps/egitim/mkengine.py). Eğitim ve Yaşam'ın 49 uygulaması.
+/// Üretilmiş dosya (proto/apps/egitim/mkengine.py). Eğitim ve Yaşam'ın 52 uygulaması.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:studio_core/apps/apps.dart';
 
+import 'tools/arabic.dart';
+import 'tools/course.dart';
 import 'tools/faith.dart';
+import 'tools/fingerspell.dart';
 import 'tools/food.dart';
 import 'tools/garden.dart';
 import 'tools/guide.dart';
@@ -520,6 +523,36 @@ final List<AppTool> egitimTools = [
     category: 'learn',
     keywords: const ['türkçe', 'turkish', 'yazım', 'imla', 'tdk', 'dilbilgisi'],
     builder: (context, t) => TurkishGrammarTool(t),
+  ),
+  AppTool(
+    id: 'uyg-dil-kursu',
+    title: kEgitimTitle['uyg-dil-kursu']!,
+    tagline: kEgitimTag['uyg-dil-kursu']!,
+    icon: Icons.record_voice_over_rounded,
+    color: const Color(0xFF5C6BC0),
+    category: 'learn',
+    keywords: const ['language', 'course', 'dil', 'kurs', 'english', 'ingilizce', 'learn', 'vocabulary'],
+    builder: (context, t) => CourseTool(t),
+  ),
+  AppTool(
+    id: 'uyg-arap-harfleri',
+    title: kEgitimTitle['uyg-arap-harfleri']!,
+    tagline: kEgitimTag['uyg-arap-harfleri']!,
+    icon: Icons.translate_rounded,
+    color: const Color(0xFF26A69A),
+    category: 'learn',
+    keywords: const ['arabic', 'arapça', 'alphabet', 'alfabe', 'elifba', 'osmanlıca', 'jawi'],
+    builder: (context, t) => ArabicLettersTool(t),
+  ),
+  AppTool(
+    id: 'uyg-isaret-dili',
+    title: kEgitimTitle['uyg-isaret-dili']!,
+    tagline: kEgitimTag['uyg-isaret-dili']!,
+    icon: Icons.sign_language_rounded,
+    color: const Color(0xFFFFA726),
+    category: 'learn',
+    keywords: const ['asl', 'sign', 'işaret', 'fingerspelling', 'parmak', 'alfabe', 'deaf'],
+    builder: (context, t) => FingerspellTool(t),
   ),
 ];
 

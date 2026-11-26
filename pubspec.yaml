@@ -1,5 +1,5 @@
 name: egitim_motoru
-description: "Eğitim ve Yaşam motoru: 49 çevrimdışı uygulama (öğrenme, diller, tarih, ehliyet, Türkçe, bilim, ibadet vakitleri, ev, mutfak, seyahat, rehberler)."
+description: "Eğitim ve Yaşam motoru: 52 çevrimdışı uygulama (öğrenme, diller, tarih, ehliyet, Türkçe, bilim, ibadet vakitleri, ev, mutfak, seyahat, rehberler)."
 publish_to: none
 version: 1.0.0
 
@@ -14,6 +14,8 @@ dependencies:
     git:
       url: https://github.com/taktemurr-ops/studio-core
       ref: 8cb935c63a86ca3e5fb38758edd5bb8ec44dccdd
+  # Dil kursu ve Arap harflerinde seslendirme: cihazın TTS motoru (MIT).
+  flutter_tts: ^4.2.5
   flutter_local_notifications: ">=19.0.0 <20.0.0"
   geolocator: ">=13.0.0 <15.0.0"
   sensors_plus: ">=6.1.0 <8.0.0"

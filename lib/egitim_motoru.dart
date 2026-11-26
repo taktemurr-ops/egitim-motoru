@@ -1,9 +1,10 @@
-/// Eğitim ve Yaşam motoru: 49 uygulamanın gerçek uygulamaları, 33 dilde
+/// Eğitim ve Yaşam motoru: 52 uygulamanın gerçek uygulamaları, 33 dilde
 /// metinleri ve merkez görünümü. İnce depolar (uyg-*) buradan tek bir
 /// uygulama alır.
 library;
 
 export 'src/astro.dart';
+export 'src/ek4_core.dart';
 export 'src/geo.dart' show City, kCities, cityByName, dstActive, Place;
 export 'src/learn_core.dart';
 export 'src/registry.dart';

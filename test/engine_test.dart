@@ -10,9 +10,9 @@ import 'package:studio_core/apps/apps.dart';
 import 'package:studio_core/core/save_store.dart';
 
 void main() {
-  test('49 uygulama, 33 dilde ad ve açıklama, geçerli kategori', () {
-    expect(egitimTools.length, 49);
-    expect(egitimTools.map((t) => t.id).toSet().length, 49);
+  test('52 uygulama, 33 dilde ad ve açıklama, geçerli kategori', () {
+    expect(egitimTools.length, 52);
+    expect(egitimTools.map((t) => t.id).toSet().length, 52);
     for (final t in egitimTools) {
       expect(t.title.length, 33, reason: t.id);
       expect(t.tagline.length, 33, reason: t.id);
@@ -470,6 +470,134 @@ void main() {
     expect(pairs.every((p) => p.$1 != p.$2), isTrue);
     expect(kSentencePairs.every((p) => p.$1 != p.$2 && p.$3.isNotEmpty), isTrue);
     expect(kGrammarTopics.length, greaterThanOrEqualTo(15));
+  });
+
+  group('4. tur: dil kursu, Arap harfleri, parmak alfabesi', () {
+    test('kurs: bütün kelime ve ifadeler, kısa dersler, 33 dil', () {
+      final units = buildCourse();
+      expect(units.length, kCourseOrder.length);
+      final items = [for (final u in units) for (final l in u.lessons) ...l];
+      expect(items.length, kCoreWords.length + kPhrases.length);
+      expect(items.map((i) => i.id).toSet().length, items.length);
+      for (final u in units) {
+        for (final l in u.lessons) {
+          expect(l.length, inInclusiveRange(1, 8), reason: u.cat);
+        }
+        final key = unitLabelKey(u.cat);
+        expect(key == 'phrase_cats' || key.startsWith('vc_'), isTrue);
+      }
+      for (final i in items) {
+        expect(i.text.length, 33, reason: i.id);
+        expect(i.text.every((x) => x.trim().isNotEmpty), isTrue, reason: i.id);
+      }
+    });
+
+    test('alıştırmalar: 4 farklı seçenek, doğru cevap içinde; ifade kurma', () {
+      final r = math.Random(4);
+      final items = [for (final u in buildCourse()) for (final l in u.lessons) ...l];
+      for (var learn = 0; learn < 33; learn++) {
+        final know = learn == 0 ? 1 : 0;
+        for (var k = 0; k < 40; k++) {
+          final it = items[r.nextInt(items.length)];
+          final ex = makeExercise(r, it, items, learn, know);
+          if (ex.kind == ExKind.build) {
+            expect(it.phrase, isTrue);
+            expect(usesSpaces(kLangCodes[learn]), isTrue);
+            expect(buildCorrect(tokensOf(it.text[learn]), it, learn), isTrue);
+            continue;
+          }
+          expect(ex.options.length, 4);
+          expect(ex.answer, greaterThanOrEqualTo(0));
+          expect(ex.options.map((o) => o.text[learn]).toSet().length, 4, reason: '${kLangCodes[learn]} ${it.id}');
+          expect(ex.options.map((o) => o.text[know]).toSet().length, 4, reason: '${kLangCodes[learn]} ${it.id}');
+        }
+      }
+      final hello = items.firstWhere((i) => i.phrase && tokensOf(i.text[1]).length >= 2);
+      final ex = makeExercise(r, hello, items, 1, 0, kind: ExKind.build);
+      expect(ex.kind, ExKind.build);
+      expect(ex.tokens.toSet(), tokensOf(hello.text[1]).toSet());
+      expect(buildCorrect(tokensOf(hello.text[1]).reversed.toList(), hello, 1), isFalse);
+      final q = lessonQueue(r, items.take(6).toList(), items.skip(6).take(10).toList());
+      expect(q.length, 6 * 2 + 2);
+      for (var i = 1; i < q.length; i++) {
+        // Aynı öğe art arda gelmez (küçük kuyrukta kaçınılmazsa yalnızca sonda).
+        if (q[i].$1.id == q[i - 1].$1.id) expect(i, q.length - 1);
+      }
+    });
+
+    test('seri ve aralıklı tekrar kaydı', () {
+      final d = DateTime(2026, 3, 10);
+      expect(bumpStreak(0, null, d), 1);
+      expect(bumpStreak(4, '2026-03-09', d), 5);
+      expect(bumpStreak(4, '2026-03-10', d), 4);
+      expect(bumpStreak(4, '2026-03-07', d), 1);
+      final c = sm2(CardState(due: d), 5, d);
+      final back = cardFromJson(cardToJson(c))!;
+      expect(back.interval, c.interval);
+      expect(back.reps, c.reps);
+      expect(back.ef, c.ef);
+      expect(back.due, c.due);
+      expect(cardFromJson('x'), isNull);
+      expect(cardFromJson([1, 2]), isNull);
+    });
+
+    test('Arap harfleri: 28 + 4 ek harf, biçimler, hece sorusu', () {
+      expect(kArLetters.where((l) => !l.extra).length, 28);
+      expect(kArLetters.where((l) => l.extra).length, 4);
+      expect(kArLetters.map((l) => l.ch).toSet().length, kArLetters.length);
+      expect(kArLetters.where((l) => !l.joinsNext).map((l) => l.ch).toSet(), {'ا', 'د', 'ذ', 'ر', 'ز', 'و'});
+      final b = kArLetters.firstWhere((l) => l.ch == 'ب');
+      expect(arForm(b, 0), 'ب');
+      expect(arForm(b, 1), 'ب‍');
+      expect(arForm(b, 2), '‍ب‍');
+      expect(arForm(b, 3), '‍ب');
+      final r = kArLetters.firstWhere((l) => l.ch == 'ر');
+      expect(arForm(r, 1), 'ر');
+      expect(arForm(r, 2), '‍ر');
+      expect(syllableOf(b, kArMarks[0]), 'ba');
+      expect(syllableOf(b, kArMarks[1]), 'bi');
+      expect(syllableOf(b, kArMarks[4]), 'bb');
+      final rnd = math.Random(1);
+      for (var i = 0; i < 200; i++) {
+        final q = syllableQuestion(rnd);
+        expect(q.options.length, 4);
+        expect(q.options.toSet().length, 4);
+        expect(q.options, contains(q.answer));
+      }
+    });
+
+    test('ASL parmak alfabesi: A–Z, geçerli durumlar, heceleme', () {
+      expect(kAslAlphabet.map((h) => h.letter).join(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+      for (final h in kAslAlphabet) {
+        expect(h.fingers.length, 4, reason: h.letter);
+        expect(RegExp(r'^[uschvtx]{4}$').hasMatch(h.fingers), isTrue, reason: h.letter);
+        expect(h.orient, inInclusiveRange(0, 2));
+      }
+      expect(kAslAlphabet.where((h) => h.motion != null).map((h) => h.letter).toList(), ['J', 'Z']);
+      // Aynı çizim iki harfe verilmez (J/Z hareketle, P/Q yönle ayrılır).
+      final keys = kAslAlphabet.map((h) => '${h.fingers}|${h.thumb}|${h.orient}|${h.motion}').toSet();
+      expect(keys.length, 26);
+      expect(spellable('Hi, Ali 2!'), ['H', 'I', ' ', 'A', 'L', 'I']);
+      expect(spellable('ç'), isEmpty);
+      final words = fingerspellWords();
+      expect(words.length, greaterThan(40));
+      expect(words.every((w) => RegExp(r'^[a-z]{3,7}$').hasMatch(w)), isTrue);
+    });
+
+    test('iz sürme puanı', () {
+      const w = 60, h = 60;
+      final mask = List<bool>.generate(w * h, (i) => (i % w) >= 20 && (i % w) < 40 && (i ~/ w) >= 10 && (i ~/ w) < 50);
+      final good = [for (var y = 10; y < 50; y += 2) (30.0, y.toDouble())];
+      final s = traceScore(mask, w, h, good, r: 12);
+      expect(s.coverage, greaterThan(0.9));
+      expect(s.precision, 1.0);
+      expect(traceStars(s.coverage, s.precision), 3);
+      final bad = [for (var y = 0; y < 60; y += 2) (2.0, y.toDouble())];
+      final b = traceScore(mask, w, h, bad, r: 12);
+      expect(b.precision, 0);
+      expect(traceStars(b.coverage, b.precision), 0);
+      expect(traceScore(mask, w, h, const []).coverage, 0);
+    });
   });
 
   // Sensör, konum ya da kamera gerektirmeyen ekranlar test ortamında açılır.

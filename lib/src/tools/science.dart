@@ -16,6 +16,7 @@ import '../data/countries.dart';
 import '../data/molecules.dart';
 import '../data/sky.dart';
 import '../geo.dart';
+import '../fold.dart';
 
 // ------------------------------------------------------------ fizik
 
@@ -439,11 +440,11 @@ class _AtlasToolState extends State<AtlasTool> {
   Widget build(BuildContext context) {
     final conts = Ls(t, 'continents');
     const codes = ['AF', 'AS', 'EU', 'NA', 'SA', 'OC'];
-    final q = _q.toLowerCase();
+    final q = _q.folded;
     final list = [
       for (var i = 0; i < kCountries.length; i++)
         if ((_cont.isEmpty || kCountries[i].continent == _cont) &&
-            (q.isEmpty || C(t, kCountries[i].name).toLowerCase().contains(q) || kCountries[i].capital.toLowerCase().contains(q)))
+            (q.isEmpty || C(t, kCountries[i].name).folded.contains(q) || kCountries[i].capital.folded.contains(q)))
           i,
     ];
     list.sort((a, b) => C(t, kCountries[a].name).compareTo(C(t, kCountries[b].name)));

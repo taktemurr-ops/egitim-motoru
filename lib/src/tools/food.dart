@@ -13,6 +13,7 @@ import 'package:studio_core/app/studio_ui.dart';
 import 'package:studio_core/apps/apps.dart';
 
 import '../common.dart';
+import '../fold.dart';
 
 // ------------------------------------------------------------ model
 
@@ -302,14 +303,14 @@ class _RecipeToolState extends State<RecipeTool> {
   @override
   Widget build(BuildContext context) {
     if (!_loaded) return const Center(child: CircularProgressIndicator());
-    final q = _q.toLowerCase();
+    final q = _q.folded;
     final list = _list
         .where((r) => !_favOnly || r.favorite)
         .where((r) =>
             q.isEmpty ||
-            r.title.toLowerCase().contains(q) ||
-            r.tags.any((g) => g.toLowerCase().contains(q)) ||
-            r.ingredients.any((i) => i.name.toLowerCase().contains(q)))
+            r.title.folded.contains(q) ||
+            r.tags.any((g) => g.folded.contains(q)) ||
+            r.ingredients.any((i) => i.name.folded.contains(q)))
         .toList()
       ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
     return ToolList(children: [

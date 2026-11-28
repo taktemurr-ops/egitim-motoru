@@ -11,6 +11,7 @@ import '../common.dart';
 import '../data/elements.dart';
 import '../data/formulas.dart';
 import '../learn_core.dart';
+import '../fold.dart';
 
 // ------------------------------------------------------------ sınav geri sayımı
 
@@ -322,11 +323,11 @@ class _PeriodicTableToolState extends State<PeriodicTableTool> {
     final cat = elementCategory(e.z);
     final cats = Ls(t, 'element_cats');
     const order = ['alkali', 'alkaline', 'transition', 'post', 'metalloid', 'nonmetal', 'halogen', 'noble', 'lanthanide', 'actinide'];
-    final q = _q.toLowerCase();
+    final q = _q.folded;
     final match = q.isEmpty
         ? null
         : kElements
-            .where((x) => x.symbol.toLowerCase() == q || C(t, x.name).toLowerCase().contains(q) || '${x.z}' == q)
+            .where((x) => x.symbol.folded == q || C(t, x.name).folded.contains(q) || '${x.z}' == q)
             .map((x) => x.z)
             .toSet();
     return ToolList(children: [

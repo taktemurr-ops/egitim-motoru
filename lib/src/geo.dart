@@ -9,6 +9,7 @@ import 'package:studio_core/apps/apps.dart';
 
 import 'common.dart';
 import 'data/cities.dart';
+import 'fold.dart';
 
 class City {
   final String name;
@@ -214,8 +215,8 @@ class _CitySheetState extends State<_CitySheet> {
 
   @override
   Widget build(BuildContext context) {
-    final q = _q.toLowerCase();
-    final list = kCities.where((c) => q.isEmpty || c.name.toLowerCase().contains(q)).toList();
+    final q = _q.folded;
+    final list = kCities.where((c) => q.isEmpty || c.name.folded.contains(q)).toList();
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.8,

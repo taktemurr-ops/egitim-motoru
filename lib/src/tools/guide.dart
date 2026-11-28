@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../common.dart';
 import '../data/guides.dart';
+import '../fold.dart';
 
 // ------------------------------------------------------------ ilk yardım
 
@@ -62,8 +63,8 @@ class _FirstAidToolState extends State<FirstAidTool> {
 
   @override
   Widget build(BuildContext context) {
-    final q = _q.toLowerCase();
-    final list = kFirstAid.where((g) => q.isEmpty || C(t, g.title).toLowerCase().contains(q)).toList();
+    final q = _q.folded;
+    final list = kFirstAid.where((g) => q.isEmpty || C(t, g.title).folded.contains(q)).toList();
     return ToolList(children: [
       Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

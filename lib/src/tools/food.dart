@@ -442,7 +442,7 @@ class _RecipeEditorState extends State<_RecipeEditor> {
 /// Haftanın günleri (pazartesi başlangıç) yyyy-mm-dd.
 List<String> weekDays(DateTime anyDay) {
   final d = dayOnly(anyDay);
-  final monday = d.subtract(Duration(days: d.weekday - 1));
+  final monday = DateTime(d.year, d.month, d.day - (d.weekday - 1));
   return [for (var i = 0; i < 7; i++) isoDay(DateTime(monday.year, monday.month, monday.day + i))];
 }
 
@@ -531,7 +531,7 @@ class _MealPlanToolState extends State<MealPlanTool> {
   /// Geçen haftanın öğünlerini bu haftanın boş yerlerine kopyalar.
   Future<void> _copyLastWeek() async {
     final now = weekDays(_week);
-    final prev = weekDays(_week.subtract(const Duration(days: 7)));
+    final prev = weekDays(DateTime(_week.year, _week.month, _week.day - 7));
     final n = copyWeekPlan(_plan, prev, now, Ls(t, 'meal_slots').length);
     if (n == 0) return;
     setState(() {});
@@ -563,7 +563,7 @@ class _MealPlanToolState extends State<MealPlanTool> {
     return ToolList(children: [
       Row(children: [
         IconButton(
-            icon: const Icon(Icons.chevron_left_rounded), onPressed: () => setState(() => _week = _week.subtract(const Duration(days: 7)))),
+            icon: const Icon(Icons.chevron_left_rounded), onPressed: () => setState(() => _week = DateTime(_week.year, _week.month, _week.day - 7))),
         Expanded(
           child: TextButton(
             onPressed: () => setState(() => _week = DateTime.now()),
@@ -571,7 +571,7 @@ class _MealPlanToolState extends State<MealPlanTool> {
                 style: const TextStyle(fontWeight: FontWeight.w800)),
           ),
         ),
-        IconButton(icon: const Icon(Icons.chevron_right_rounded), onPressed: () => setState(() => _week = _week.add(const Duration(days: 7)))),
+        IconButton(icon: const Icon(Icons.chevron_right_rounded), onPressed: () => setState(() => _week = DateTime(_week.year, _week.month, _week.day + 7))),
       ]),
       for (final d in days)
         AppPanel(

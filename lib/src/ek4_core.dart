@@ -157,7 +157,7 @@ int bumpStreak(int streak, String? lastIso, DateTime today) {
   final d = DateTime(today.year, today.month, today.day);
   String iso(DateTime x) => '${x.year.toString().padLeft(4, '0')}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
   if (lastIso == iso(d)) return math.max(1, streak);
-  if (lastIso == iso(d.subtract(const Duration(days: 1)))) return streak + 1;
+  if (lastIso == iso(DateTime(d.year, d.month, d.day - 1))) return streak + 1;
   return 1;
 }
 

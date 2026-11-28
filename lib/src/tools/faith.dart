@@ -14,6 +14,7 @@ import 'package:studio_core/apps/apps.dart';
 import '../astro.dart';
 import '../common.dart';
 import '../geo.dart';
+import '../platform/notify.dart';
 
 // ------------------------------------------------------------ ortak ayar
 
@@ -95,11 +96,23 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
 
   ToolContext get t => widget.t;
 
+  /// Vakit bildirimleri: hangi vakitler (imsak…yatsı) ve kaç dakika önce.
+  List<bool> _alerts = List.filled(6, false);
+  int _before = 0;
+
   @override
   void initState() {
     super.initState();
-    _FaithSettings.load(t).then((s) {
-      if (mounted) setState(() => _s = s);
+    _FaithSettings.load(t).then((s) async {
+      final a = await t.store.read('alerts') ?? '';
+      final b = await t.store.readInt('alert_before', 0);
+      if (!mounted) return;
+      setState(() {
+        _s = s;
+        if (a.length == 6) _alerts = [for (var i = 0; i < 6; i++) a[i] == '1'];
+        _before = b;
+      });
+      unawaited(_reschedule());
     });
     _tick = Timer.periodic(const Duration(seconds: 20), (_) {
       if (mounted) setState(() {});
@@ -115,6 +128,40 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
   void _changed() {
     setState(() {});
     unawaited(_s!.save(t));
+    unawaited(_reschedule());
+  }
+
+  /// Bildirim kimlikleri: gün (0–7) × 10 + vakit (0–5).
+  static int _alertId(int day, int prayer) => 9100000 + day * 10 + prayer;
+
+  /// Seçili vakitlerin önümüzdeki 7 günlük bildirimlerini yeniden kurar.
+  Future<void> _reschedule() async {
+    final s = _s;
+    if (s == null || !Notify.supported) return;
+    for (var d = 0; d <= 7; d++) {
+      for (var i = 0; i < 6; i++) {
+        await Notify.cancel(_alertId(d, i));
+      }
+    }
+    if (!_alerts.contains(true)) return;
+    final names = Ls(t, 'prayer_names');
+    final now = DateTime.now();
+    for (final (d, at, time) in prayerAlertTimes(s.day, s.place.offsetOn, now, _alerts, _before)) {
+      final (day, i) = d;
+      await Notify.schedule(_alertId(day, i), '${names[i]} · ${hhmm(time)}',
+          _before > 0 ? Lf(t, 'pr_soon', {'n': _before}) : s.place.name, at);
+    }
+  }
+
+  Future<void> _toggleAlert(int i, bool v) async {
+    if (v && Notify.supported && !await t.store.readBool('notify_asked')) {
+      if (!await rationaleOnce(context, t, 'notify', Icons.notifications_active_rounded)) return;
+      await Notify.requestPermission();
+      await t.store.writeBool('notify_asked', true);
+    }
+    setState(() => _alerts[i] = v);
+    await t.store.write('alerts', _alerts.map((b) => b ? '1' : '0').join());
+    await _reschedule();
   }
 
   @override
@@ -137,7 +184,7 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
       }
     }
     if (next == null) {
-      next = s.day(dayOnly(now).add(const Duration(days: 1))).fajr;
+      next = s.day(DateTime(now.year, now.month, now.day + 1)).fajr;
       nextName = names[0];
     }
     final left = next?.difference(now);
@@ -157,7 +204,7 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
           Row(children: [
             IconButton(
               icon: const Icon(Icons.chevron_left_rounded),
-              onPressed: () => setState(() => _day = _day.subtract(const Duration(days: 1))),
+              onPressed: () => setState(() => _day = DateTime(_day.year, _day.month, _day.day - 1)),
             ),
             Expanded(
               child: TextButton(
@@ -167,7 +214,7 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right_rounded),
-              onPressed: () => setState(() => _day = _day.add(const Duration(days: 1))),
+              onPressed: () => setState(() => _day = DateTime(_day.year, _day.month, _day.day + 1)),
             ),
           ]),
           for (var i = 0; i < 6; i++)
@@ -180,9 +227,63 @@ class _PrayerTimesToolState extends State<PrayerTimesTool> {
         ]),
       ),
       _MethodPanel(t, s, _changed),
+      if (Notify.supported) ...[
+        AppHeading(L(t, 'pr_alerts'), icon: Icons.notifications_active_rounded),
+        AppPanel(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (var i = 0; i < 6; i++)
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(names[i]),
+                subtitle: Text(_hm(today.times[i]), style: const TextStyle(color: Colors.white60)),
+                value: _alerts[i],
+                onChanged: (v) => _toggleAlert(i, v),
+              ),
+            const SizedBox(height: 4),
+            Text(L(t, 'pr_before'), style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 4),
+            Choice<int>(
+              values: const [0, 5, 10, 15, 30],
+              labels: const ['0', '5', '10', '15', '30'],
+              selected: _before,
+              onChanged: (v) {
+                setState(() => _before = v);
+                unawaited(t.store.write('alert_before', '$v'));
+                unawaited(_reschedule());
+              },
+            ),
+            const SizedBox(height: 6),
+            Text(L(t, 'pr_alerts_hint'), style: const TextStyle(color: Colors.white60, fontSize: 13)),
+          ]),
+        ),
+      ],
       AppInfoCard(L(t, 'calc_note'), icon: Icons.info_outline_rounded),
     ]);
   }
+}
+
+/// Seçili vakitler için [now]'dan sonraki 7 günün bildirim anları:
+/// ((gün, vakit), UTC an, yerel vakit). Vakitler seçili yerin saatiyle
+/// hesaplandığından an, o yerin UTC farkıyla ([offsetOn]) mutlak zamana
+/// çevrilir; cihaz başka saat dilimindeyse de doğru anda çalar.
+/// [before] dakika önce bildirir.
+List<((int, int), DateTime, DateTime)> prayerAlertTimes(PrayerDay Function(DateTime) dayOf,
+    double Function(DateTime) offsetOn, DateTime now, List<bool> on, int before) {
+  final out = <((int, int), DateTime, DateTime)>[];
+  final nowUtc = now.toUtc();
+  for (var d = 0; d < 7; d++) {
+    final date = DateTime(now.year, now.month, now.day + d);
+    final pd = dayOf(date);
+    final off = Duration(minutes: (offsetOn(date) * 60).round());
+    for (var i = 0; i < 6; i++) {
+      final v = pd.times[i];
+      if (!on[i] || v == null) continue;
+      final at = DateTime.utc(v.year, v.month, v.day, v.hour, v.minute).subtract(off).subtract(Duration(minutes: before));
+      if (at.isAfter(nowUtc)) out.add(((d, i), at, v));
+    }
+  }
+  return out;
 }
 
 // ------------------------------------------------------------ kıble

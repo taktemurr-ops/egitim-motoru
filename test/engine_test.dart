@@ -45,6 +45,32 @@ void main() {
     expect(w.maghrib!.hour, 17);
   });
 
+  test('Diyanet takvimiyle karşılaştırma: Fatih 28.11.2026 (±1 dk)', () {
+    // Diyanet'in yayımladığı Fatih vakitleri: 06:29 07:59 12:57 15:23 17:45 19:10.
+    final d = prayerTimes(DateTime(2026, 11, 28), 41.0082, 28.9784, 3, methodById('diyanet'));
+    const ref = [(6, 29), (7, 59), (12, 57), (15, 23), (17, 45), (19, 10)];
+    for (var i = 0; i < 6; i++) {
+      final got = d.times[i]!.hour * 60 + d.times[i]!.minute;
+      expect((got - (ref[i].$1 * 60 + ref[i].$2)).abs(), lessThanOrEqualTo(1), reason: '$i');
+    }
+  });
+
+  test('vakit bildirimleri: 7 gün, geçmiş atlanır, yerin UTC farkıyla mutlak an', () {
+    final m = methodById('diyanet');
+    PrayerDay dayOf(DateTime d) => prayerTimes(d, 41.0082, 28.9784, 3, m);
+    final now = DateTime.utc(2026, 11, 28, 13, 0); // İstanbul 16:00
+    final on = [false, false, true, false, true, false]; // öğle ve akşam
+    final all = prayerAlertTimes(dayOf, (_) => 3.0, now, on, 0);
+    // Bugünün öğlesi geçti: bugün yalnız akşam, sonraki 6 günde ikişer.
+    expect(all.length, 13);
+    expect(all.first.$1, (0, 4));
+    final first = all.first.$3;
+    expect(all.first.$2, DateTime.utc(first.year, first.month, first.day, first.hour - 3, first.minute));
+    final early = prayerAlertTimes(dayOf, (_) => 3.0, now, on, 10);
+    expect(early.first.$2, all.first.$2.subtract(const Duration(minutes: 10)));
+    expect(prayerAlertTimes(dayOf, (_) => 3.0, now, List.filled(6, false), 0), isEmpty);
+  });
+
   test('yüksek enlemde vakitler yine oluşur', () {
     final d = prayerTimes(DateTime(2026, 6, 21), 59.33, 18.07, 2, methodById('mwl'));
     expect(d.fajr, isNotNull);

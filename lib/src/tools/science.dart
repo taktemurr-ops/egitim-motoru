@@ -849,14 +849,14 @@ class _MoonSunToolState extends State<MoonSunTool> {
         },
       ),
       Row(children: [
-        IconButton(icon: const Icon(Icons.chevron_left_rounded), onPressed: () => setState(() => _day = _day.subtract(const Duration(days: 1)))),
+        IconButton(icon: const Icon(Icons.chevron_left_rounded), onPressed: () => setState(() => _day = DateTime(_day.year, _day.month, _day.day - 1))),
         Expanded(
           child: TextButton(
             onPressed: () => setState(() => _day = dayOnly(DateTime.now())),
             child: Text(fmtDate(context, _day), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           ),
         ),
-        IconButton(icon: const Icon(Icons.chevron_right_rounded), onPressed: () => setState(() => _day = _day.add(const Duration(days: 1)))),
+        IconButton(icon: const Icon(Icons.chevron_right_rounded), onPressed: () => setState(() => _day = DateTime(_day.year, _day.month, _day.day + 1))),
       ]),
       AppPanel(
         child: Row(children: [

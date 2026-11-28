@@ -9,7 +9,7 @@ export 'src/geo.dart' show City, kCities, cityByName, dstActive, Place;
 export 'src/learn_core.dart';
 export 'src/registry.dart';
 export 'src/tools/food.dart' show Ingredient, Recipe, aggregate, exportRecipes, importRecipes, weekDays, copyWeekPlan;
-export 'src/tools/faith.dart' show ramadanDays, upcomingHolyDays, kHolyDays;
+export 'src/tools/faith.dart' show ramadanDays, upcomingHolyDays, kHolyDays, prayerAlertTimes;
 export 'src/tools/garden.dart' show badPairs;
 export 'src/tools/learn.dart' show searchWords, sampleText, buildVocabDecks;
 export 'src/data/dict_assets.dart' show parseDictTsv, parseVocabTsv, kVocabLevels, kDictAsset, kVocabAsset;

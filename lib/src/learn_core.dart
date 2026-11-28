@@ -24,7 +24,7 @@ CardState sm2(CardState s, int q, DateTime today) {
   if (q < 3) return CardState(ef: ef, interval: 0, reps: 0, due: d);
   final reps = s.reps + 1;
   final interval = reps == 1 ? 1 : (reps == 2 ? 6 : (s.interval * ef).round());
-  return CardState(ef: ef, interval: interval, reps: reps, due: d.add(Duration(days: interval)));
+  return CardState(ef: ef, interval: interval, reps: reps, due: DateTime(d.year, d.month, d.day + interval));
 }
 
 // ------------------------------------------------------------ matematik

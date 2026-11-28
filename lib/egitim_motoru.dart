@@ -4,6 +4,7 @@
 library;
 
 export 'src/astro.dart';
+export 'src/wmm.dart' show magneticDeclination;
 export 'src/ek4_core.dart';
 export 'src/geo.dart' show City, kCities, cityByName, dstActive, Place;
 export 'src/learn_core.dart';

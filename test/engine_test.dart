@@ -55,6 +55,15 @@ void main() {
     }
   });
 
+  test('WMM2025 manyetik sapma (NOAA modeliyle aynı katsayılar)', () {
+    final when = DateTime(2026, 11, 28);
+    // Beklenen değerler WMM2025'in bağımsız Python uygulamasından (±0,05°).
+    expect(magneticDeclination(41.01, 28.98, when), closeTo(6.08, 0.05)); // İstanbul, doğu
+    expect(magneticDeclination(40.71, -74.0, when), closeTo(-12.46, 0.05)); // New York, batı
+    expect(magneticDeclination(-33.87, 151.2, when), closeTo(12.83, 0.05)); // Sidney
+    expect(magneticDeclination(21.42, 39.83, when), closeTo(3.5, 0.05)); // Mekke
+  });
+
   test('vakit bildirimleri: 7 gün, geçmiş atlanır, yerin UTC farkıyla mutlak an', () {
     final m = methodById('diyanet');
     PrayerDay dayOf(DateTime d) => prayerTimes(d, 41.0082, 28.9784, 3, m);

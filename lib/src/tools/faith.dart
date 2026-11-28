@@ -15,6 +15,7 @@ import '../astro.dart';
 import '../common.dart';
 import '../geo.dart';
 import '../platform/notify.dart';
+import '../wmm.dart';
 
 // ------------------------------------------------------------ ortak ayar
 
@@ -359,7 +360,10 @@ class _QiblaToolState extends State<QiblaTool> {
     final q = qiblaBearing(p.lat, p.lng);
     final km = greatCircleKm(p.lat, p.lng, kaabaLat, kaabaLng);
     final sensor = !t.isWeb && _mag.available != false && _acc.available != false;
-    final h = _heading;
+    // Telefon pusulası manyetik kuzeyi verir; kıble coğrafi kuzeye göredir.
+    final dec = magneticDeclination(p.lat, p.lng, DateTime.now());
+    final hm = _heading;
+    final h = hm == null ? null : ((hm + dec) % 360 + 360) % 360;
     final rel = h == null ? null : ((q - h) % 360 + 360) % 360;
     final aligned = rel != null && (rel < 4 || rel > 356);
     final accent = AppLook.of(context).accent;
@@ -389,7 +393,17 @@ class _QiblaToolState extends State<QiblaTool> {
         AppInfoCard(aligned ? L(t, 'qibla_aligned') : L(t, 'qibla_turn'),
             icon: aligned ? Icons.check_circle_rounded : Icons.rotate_right_rounded),
       if (!sensor) notAvailable(t),
-      AppPanel(child: AppResult(label: L(t, 'distance'), value: '${km.round()} km', lang: t.lang)),
+      AppPanel(
+        child: Column(children: [
+          AppResult(label: L(t, 'distance'), value: '${km.round()} km', lang: t.lang),
+          if (sensor)
+            AppResult(
+              label: L(t, 'mag_decl'),
+              value: '${dec.abs().toStringAsFixed(1)}° ${dec >= 0 ? Ls(t, 'cardinals')[1] : Ls(t, 'cardinals')[3]}',
+              lang: t.lang,
+            ),
+        ]),
+      ),
       AppInfoCard(L(t, 'qibla_note')),
     ]);
   }
